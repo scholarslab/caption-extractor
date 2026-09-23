@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Catalog Gallery</title>
+<style>
+  :root {
+    --bg: #f6f3ee;
+    --panel: #ffffff;
+    --ink: #232019;
+    --muted: #6f6a5f;
+    --accent: #8a5a30;
+    --border: #e4ddd0;
+    --badge-bg: #232019;
+    --badge-ink: #f6f3ee;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  header {
+    padding: 56px 24px 32px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, #fbf9f5, var(--bg));
+  }
+
+  header h1 {
+    margin: 0 0 8px;
+    font-family: Georgia, "Times New Roman", serif;
+    font-weight: 400;
+    font-size: clamp(28px, 4vw, 42px);
+    letter-spacing: 0.01em;
+  }
+
+  header p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 15px;
+  }
+
+  .controls {
+    max-width: 1200px;
+    margin: 28px auto 0;
+    padding: 0 24px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .controls input {
+    flex: 1;
+    min-width: 220px;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--panel);
+    color: var(--ink);
+    font-size: 14px;
+  }
+
+  .controls input:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+
+  .count {
+    color: var(--muted);
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 24px 80px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 28px;
+  }
+
+  figure {
+    margin: 0;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 1px 2px rgba(35, 32, 25, 0.04);
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
+  }
+
+  figure:hover {
+    box-shadow: 0 8px 24px rgba(35, 32, 25, 0.10);
+    transform: translateY(-2px);
+  }
+
+  .thumb {
+    position: relative;
+    background: #efece5;
+    aspect-ratio: 4 / 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+
+  .badges {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    display: flex;
+    justify-content: space-between;
+    pointer-events: none;
+  }
+
+  .badge {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: var(--badge-bg);
+    color: var(--badge-ink);
+    opacity: 0.85;
+  }
+
+  .badge.page {
+    background: rgba(255, 255, 255, 0.85);
+    color: var(--ink);
+    border: 1px solid var(--border);
+  }
+
+  figcaption {
+    padding: 16px 18px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+  }
+
+  .caption-original {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 15px;
+    line-height: 1.4;
+    color: var(--ink);
+  }
+
+  .caption-translation {
+    font-size: 13px;
+    line-height: 1.45;
+    color: var(--muted);
+  }
+
+  footer {
+    text-align: center;
+    padding: 24px;
+    color: var(--muted);
+    font-size: 12px;
+    border-top: 1px solid var(--border);
+  }
+
+  .empty {
+    text-align: center;
+    color: var(--muted);
+    padding: 60px 0;
+    font-size: 14px;
+    display: none;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #16140f;
+      --panel: #1f1c16;
+      --ink: #ece7dc;
+      --muted: #9c9483;
+      --accent: #c99b62;
+      --border: #322d24;
+      --badge-bg: #ece7dc;
+      --badge-ink: #16140f;
+    }
+    .thumb { background: #262219; }
+    .badge.page { background: rgba(22, 20, 15, 0.85); color: var(--ink); }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Exhibition Catalog</h1>
+  <p id="subtitle">36 works</p>
+</header>
+
+<div class="controls">
+  <input type="search" id="search" placeholder="Search title, medium, page…" autocomplete="off">
+  <span class="count" id="count"></span>
+</div>
+
+<main>
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="empty">No items match your search.</div>
+</main>
+
+<footer>Generated from KIC.json &middot; full-resolution crops</footer>
+
+<script>
+const DATA = [{"image": "KIC_000_small.png", "image_size": [1200, 602], "page_spread": [10, 11], "items": [{"item": 1, "page": 10, "bbox": [108, 48, 278, 262], "caption_original": "Портрет жінки в іспанській шалі. 1906-1907. Картон, олія. 65,5x57", "caption_translation": "Portrait of a woman in a Spanish shawl. 1906-1907. Cardboard, oil. 65.5×57"}, {"item": 2, "page": 10, "bbox": [108, 285, 278, 552], "caption_original": "Натурник із зеленою вагою. 1909. Полотно, олія. 96x62", "caption_translation": "Male model with a green column. 1909. Canvas, oil. 96×62"}, {"item": 3, "page": 10, "bbox": [305, 48, 570, 425], "caption_original": "Натурник з жовтим драпіруванням. 1909. Полотно, олія. 115x77", "caption_translation": "Male model with yellow drapery. 1909. Canvas, oil. 115×77"}, {"item": 4, "page": 11, "bbox": [620, 48, 1155, 400], "caption_original": "Херсон. Зелений базар. 1921. Полотно, олія. 48x67,5", "caption_translation": "Kherson. Green Bazaar. 1921. Canvas, oil. 48×67.5"}]}, {"image": "KIC_001_small.png", "image_size": [1200, 599], "page_spread": [12, 13], "items": [{"item": 5, "page": 12, "bbox": [0, 0, 465, 460], "caption_original": "Етюд. 1924. Папір на картоні, олія. 23x17", "caption_translation": "Etude. 1924. Paper on cardboard, oil. 23×17"}, {"item": 6, "page": 13, "bbox": [648, 50, 975, 250], "caption_original": "На Дніпрі. В плавнях. Херсон. 1914. Полотно, олія. 28x46", "caption_translation": "On the Dnipro. In the water meadows. Kherson. 1914. Canvas, oil. 28×46"}, {"item": 7, "page": 13, "bbox": [1000, 50, 1160, 250], "caption_original": "Над Дніпром. 1920. Полотно, олія. 30,5x23,5", "caption_translation": "Over the Dnipro. 1920. Canvas, oil. 30.5×23.5"}, {"item": 8, "page": 13, "bbox": [648, 280, 1160, 440], "caption_original": "Херсон. Зелений базар. 1928. Фанера, олія. 24,8x73,6", "caption_translation": "Kherson. Green Bazaar. 1928. Plywood, oil. 24.8×73.6"}]}, {"image": "KIC_002_small.png", "image_size": [1200, 603], "page_spread": [14, 15], "items": [{"item": 9, "page": 14, "bbox": [65, 72, 400, 272], "caption_original": "Квіткарки. 1928. Картон, олія. 51x83", "caption_translation": "Flower sellers. 1928. Cardboard, oil. 51×83"}, {"item": 10, "page": 14, "bbox": [65, 298, 400, 537], "caption_original": "Сонячний промінь. 1928. Картон, олія. 50x69", "caption_translation": "Sunbeam. 1928. Cardboard, oil. 50×69"}, {"item": 11, "page": 15, "bbox": [605, 0, 1200, 599], "caption_original": "Натюрморт із синім глечиком. 1930. Папір на картоні, олія. 77,5x68,5", "caption_translation": "Still life with a blue jug. 1930. Paper on cardboard, oil. 77.5×68.5"}]}, {"image": "KIC_003_small.png", "image_size": [1200, 605], "page_spread": [16, 17], "items": [{"item": 12, "page": 16, "bbox": [15, 65, 600, 525], "caption_original": "Портрет дружини. 1936. Полотно, олія. 107,5x144,5", "caption_translation": "Portrait of the artist's wife. 1936. Canvas, oil. 107.5×144.5"}, {"item": 13, "page": 17, "bbox": [680, 65, 878, 410], "caption_original": "Молодиця. 1938. Полотно, олія. 152x85", "caption_translation": "Young married woman. 1938. Canvas, oil. 152×85"}, {"item": 14, "page": 17, "bbox": [903, 65, 1132, 410], "caption_original": "Портрет народного співака І.М. Кажарова. 1939. Полотно, олія. 126,5x78,5", "caption_translation": "Portrait of People's singer I.M. Kazharov. 1939. Canvas, oil. 126.5×78.5"}]}, {"image": "KIC_004_small.png", "image_size": [1200, 612], "page_spread": [18, 19], "items": [{"item": 15, "page": 18, "bbox": [65, 22, 385, 530], "caption_original": "Портрет молдаванки біля дзеркала. 1936. Полотно, олія. 200,7x105,5", "caption_translation": "Portrait of a Moldavian woman by the mirror. 1936. Canvas, oil. 200.7×105.5"}, {"item": 16, "page": 19, "bbox": [618, 55, 858, 253], "caption_original": "Молдаванки. 1936. Полотно, олія. 98x96", "caption_translation": "Moldavian women. 1936. Canvas, oil. 98×96"}, {"item": 17, "page": 19, "bbox": [875, 55, 1128, 253], "caption_original": "Портрет Михайла Ямпольського. 1940. Картон, олія. 53x73", "caption_translation": "Portrait of Mykhailo Yampolsky. 1940. Cardboard, oil. 53×73"}, {"item": 18, "page": 19, "bbox": [618, 275, 965, 530], "caption_original": "За шиттям. 1940. Полотно, олія. 80x97", "caption_translation": "At sewing. 1940. Canvas, oil. 80×97"}]}, {"image": "KIC_005_small.png", "image_size": [1200, 608], "page_spread": [20, 21], "items": [{"item": 19, "page": 20, "bbox": [65, 50, 262, 325], "caption_original": "Голівка (О.В. Шовкуненко). 1942. Дерматин, олія. 63x49,5", "caption_translation": "Head (O.V. Shovkunenko). 1942. Leatherette, oil. 63×49.5"}, {"item": 20, "page": 20, "bbox": [288, 50, 490, 325], "caption_original": "Портрет актриси Тамари Худабердиної. Уфа. 1941-1942. Дерматин, олія. 64,5x50", "caption_translation": "Portrait of actress Tamara Khudaberdina. Ufa. 1941-1942. Leatherette, oil. 64.5×50"}, {"item": 21, "page": 20, "bbox": [65, 345, 360, 555], "caption_original": "Вид з вікна майстерні. 1946. Картон, олія. 40,4x63", "caption_translation": "View from the studio window. 1946. Cardboard, oil. 40.4×63"}, {"item": 22, "page": 21, "bbox": [815, 0, 1200, 599], "caption_original": "Дівчата з козенятком. 1940. Полотно, олія. 160x100", "caption_translation": "Girls with a kid goat. 1940. Canvas, oil. 160×100"}]}, {"image": "KIC_006_small.png", "image_size": [1200, 610], "page_spread": [22, 23], "items": [{"item": 23, "page": 22, "bbox": [0, 0, 460, 510], "caption_original": "Півонії та ромашки. 1950. Картон, олія. 94x70", "caption_translation": "Peonies and daisies. 1950. Cardboard, oil. 94×70"}, {"item": 24, "page": 23, "bbox": [815, 30, 1200, 599], "caption_original": "Портрет Н.М. Ужвій в ролі Л.А. Раневської. 1947. Полотно, олія. 123,5x77,5", "caption_translation": "Portrait of N.M. Uzhviy in the role of L.A. Ranevskaya. 1947. Canvas, oil. 123.5×77.5"}]}, {"image": "KIC_007_small.png", "image_size": [1200, 616], "page_spread": [24, 25], "items": [{"item": 25, "page": 24, "bbox": [65, 48, 245, 330], "caption_original": "Портрет сталевара П.С. Кочеткова. 1949. Полотно, олія. 149x92,3", "caption_translation": "Portrait of steelworker P.S. Kochetkov. 1949. Canvas, oil. 149×92.3"}, {"item": 26, "page": 24, "bbox": [268, 48, 575, 535], "caption_original": "Портрет сталевара. 1949. Полотно, олія. 149,3x92,8", "caption_translation": "Portrait of a steelworker. 1949. Canvas, oil. 149.3×92.8"}, {"item": 27, "page": 25, "bbox": [815, 0, 1200, 599], "caption_original": "Натюрморт з цибулею й гарбузом. 1950. Полотно, олія. 149,5x100", "caption_translation": "Still life with onion and pumpkin. 1950. Canvas, oil. 149.5×100"}]}, {"image": "KIC_008_small.png", "image_size": [1200, 625], "page_spread": [26, 27], "items": [{"item": 28, "page": 26, "bbox": [0, 0, 600, 599], "caption_original": "Осінь. Синя вода. 1954. Полотно, олія. 102x100", "caption_translation": "Autumn. Blue water. 1954. Canvas, oil. 102×100"}, {"item": 29, "page": 27, "bbox": [618, 48, 785, 300], "caption_original": "Портрет письменника Ю.І. Яновського. 1954. Полотно, олія. 88,5x52,5", "caption_translation": "Portrait of writer Yuriy Yanovsky. 1954. Canvas, oil. 88.5×52.5"}, {"item": 30, "page": 27, "bbox": [800, 48, 965, 300], "caption_original": "Пейзаж з мальвами. 1960. Полотно, олія. 129x96,7", "caption_translation": "Landscape with hollyhocks. 1960. Canvas, oil. 129×96.7"}, {"item": 31, "page": 27, "bbox": [980, 48, 1148, 300], "caption_original": "Портрет народного артиста УРСР С.С. Петрова. 1950. Полотно, олія. 93,5x62", "caption_translation": "Portrait of People's Artist of the Ukrainian SSR S.S. Petrov. 1950. Canvas, oil. 93.5×62"}, {"item": 32, "page": 27, "bbox": [800, 318, 1150, 560], "caption_original": "Дуби на галявині. 1956. Полотно, олія. 76x100", "caption_translation": "Oaks in a clearing. 1956. Canvas, oil. 76×100"}]}, {"image": "KIC_009_small.png", "image_size": [1200, 613], "page_spread": [28, 29], "items": [{"item": 33, "page": 28, "bbox": [0, 48, 598, 440], "caption_original": "Натюрморт з кавуном. Кін. 40-х поч. 50-х рр. XX ст. Полотно на картоні, олія. 62,5x99", "caption_translation": "Still life with watermelon. Late 1940s-early 1950s. Canvas on cardboard, oil. 62.5×99"}, {"item": 34, "page": 29, "bbox": [635, 65, 960, 192], "caption_original": "Зелений базар в Херсоні. 1955. Полотно, олія. 102x250", "caption_translation": "Green Bazaar in Kherson. 1955. Canvas, oil. 102×250"}, {"item": 35, "page": 29, "bbox": [635, 232, 1150, 432], "caption_original": "Херсонський базар. 1950. Картон, олія. 34,5x85", "caption_translation": "Kherson bazaar. 1950. Cardboard, oil. 34.5×85"}, {"item": 36, "page": 29, "bbox": [850, 460, 1150, 570], "caption_original": "Херсон. Зелений базар. 1950. Картон, олія. 35x83,5", "caption_translation": "Kherson. Green Bazaar. 1950. Cardboard, oil. 35×83.5"}]}];
+
+const items = [];
+for (const page of DATA) {
+  const fullImage = page.image.replace('_small', '');
+  for (const it of page.items) {
+    const num = String(it.item).padStart(3, '0');
+    items.push({
+      ...it,
+      src: `${fullImage}_${num}.png`,
+    });
+  }
+}
+items.sort((a, b) => a.item - b.item);
+
+const grid = document.getElementById('grid');
+const empty = document.getElementById('empty');
+const countEl = document.getElementById('count');
+const subtitle = document.getElementById('subtitle');
+subtitle.textContent = `${items.length} works`;
+
+function render(filter) {
+  const q = filter.trim().toLowerCase();
+  let shown = 0;
+  grid.innerHTML = '';
+  for (const it of items) {
+    const haystack = `${it.caption_original} ${it.caption_translation} ${it.page} ${it.item}`.toLowerCase();
+    if (q && !haystack.includes(q)) continue;
+    shown++;
+
+    const fig = document.createElement('figure');
+
+    const thumb = document.createElement('div');
+    thumb.className = 'thumb';
+    const img = document.createElement('img');
+    img.src = it.src;
+    img.loading = 'lazy';
+    img.alt = it.caption_translation;
+    thumb.appendChild(img);
+
+    const badges = document.createElement('div');
+    badges.className = 'badges';
+    badges.innerHTML = `<span class="badge">#${it.item}</span><span class="badge page">p. ${it.page}</span>`;
+    thumb.appendChild(badges);
+
+    const cap = document.createElement('figcaption');
+    const orig = document.createElement('div');
+    orig.className = 'caption-original';
+    orig.textContent = it.caption_original;
+    const trans = document.createElement('div');
+    trans.className = 'caption-translation';
+    trans.textContent = it.caption_translation;
+    cap.appendChild(orig);
+    cap.appendChild(trans);
+
+    fig.appendChild(thumb);
+    fig.appendChild(cap);
+    grid.appendChild(fig);
+  }
+  countEl.textContent = q ? `${shown} of ${items.length}` : '';
+  empty.style.display = shown === 0 ? 'block' : 'none';
+}
+
+document.getElementById('search').addEventListener('input', (e) => render(e.target.value));
+render('');
+</script>
+
+</body>
+</html>
